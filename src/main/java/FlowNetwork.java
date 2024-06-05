@@ -1,22 +1,52 @@
-import java.util.*;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.Queue;
 
 public abstract class FlowNetwork {
     protected static final int INF = Integer.MAX_VALUE;
 
-    protected static class Result {
-        int maxFlow;
-        int[][] flows;
-        int minCost;
+    protected static boolean spfa(Graph graph) {
+        Arrays.fill(graph.dist, Integer.MAX_VALUE);
+        Arrays.fill(graph.inQueue, false);
+        Queue<Integer> queue = new LinkedList<>();
+        queue.add(graph.sourceNode);
+        graph.dist[graph.sourceNode] = 0;
+        graph.inQueue[graph.sourceNode] = true;
 
-        Result(int maxFlow, int[][] flows) {
-            this.maxFlow = maxFlow;
-            this.flows = flows;
+        while (!queue.isEmpty()) {
+            int u = queue.poll();
+            graph.inQueue[u] = false;
+            for (Edge edge : graph.adjList[u]) {
+                if (edge.capacity > edge.flow && graph.dist[edge.to] > graph.dist[u] + edge.cost) {
+                    graph.dist[edge.to] = graph.dist[u] + edge.cost;
+                    graph.parent[edge.to] = u;
+                    graph.parentEdge[edge.to] = edge;
+                    if (!graph.inQueue[edge.to]) {
+                        queue.add(edge.to);
+                        graph.inQueue[edge.to] = true;
+                    }
+                }
+            }
         }
-        Result(int maxFlow, int minCost, int[][] flows) {
-            this.maxFlow = maxFlow;
-            this.minCost = minCost;
-            this.flows = flows;
+        return graph.dist[graph.sinkNode] != Integer.MAX_VALUE;
+    }
+
+    protected static int[] minCostMaxFlow(Graph graph) {
+        int flow = 0, cost = 0;
+
+        while (spfa(graph)) {
+            int pathFlow = Integer.MAX_VALUE;
+            for (int v = graph.sinkNode; v != graph.sourceNode; v = graph.parent[v]) {
+                pathFlow = Math.min(pathFlow, graph.parentEdge[v].capacity - graph.parentEdge[v].flow);
+            }
+            for (int v = graph.sinkNode; v != graph.sourceNode; v = graph.parent[v]) {
+                graph.parentEdge[v].flow += pathFlow;
+                graph.parentEdge[v].reverse.flow -= pathFlow;
+                cost += pathFlow * graph.parentEdge[v].cost;
+            }
+            flow += pathFlow;
         }
+        return new int[]{flow, cost};
     }
 
     protected Result fordFulkerson(Graph graph) {
@@ -71,12 +101,13 @@ public abstract class FlowNetwork {
         return visited[sink];
     }
 
-    protected void dfs(Graph graph, int[][] flows, int node, boolean[] visited) {
-        visited[node] = true;
-        for (int i = 0; i < graph.numNodes; i++) {
-            if (!visited[i] && flows[node][i] > 0) {
-                dfs(graph, flows, i, visited);
-            }
+    protected static class Result {
+        int maxFlow;
+        int[][] flows;
+
+        Result(int maxFlow, int[][] flows) {
+            this.maxFlow = maxFlow;
+            this.flows = flows;
         }
     }
 }
