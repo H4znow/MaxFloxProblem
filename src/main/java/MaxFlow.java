@@ -1,9 +1,9 @@
 import java.io.IOException;
 
 public class MaxFlow extends FlowNetwork {
-    public static void main(String[] args) {
+    public void run(String path) {
         try {
-            Graph graph = new Graph("ressources/graph.txt");
+            Graph graph = new Graph(path);
             Result maxFlowResult = new MaxFlow().fordFulkerson(graph);
             System.out.println("Max Flow: " + maxFlowResult.maxFlow);
             System.out.println("Flow Values Traversing Each Arc:");
@@ -15,4 +15,10 @@ public class MaxFlow extends FlowNetwork {
             e.printStackTrace();
         }
     }
+
+    @Override
+    public String name() {
+        return "Max Flox";
+    }
+
 }

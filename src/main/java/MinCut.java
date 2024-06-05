@@ -1,10 +1,11 @@
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MinCut extends FlowNetwork {
-    public static void main(String[] args) {
+    public void run(String path) {
         try {
-            Graph graph = new Graph("ressources/graph2.txt");
+            Graph graph = new Graph(path);
             Result maxFlowResult = new MinCut().fordFulkerson(graph);
             List<Edge> minCutEdges = new MinCut().findMinCut(graph, maxFlowResult.flows);
             System.out.println("Minimum Cut Edges:");
@@ -37,12 +38,9 @@ public class MinCut extends FlowNetwork {
         return minCutEdges;
     }
 
-    private void dfsOnResidualGraph(int node, int[][] residualCapacity, boolean[] visited) {
-        visited[node] = true;
-        for (int i = 0; i < residualCapacity.length; i++) {
-            if (!visited[i] && residualCapacity[node][i] > 0) {
-                dfsOnResidualGraph(i, residualCapacity, visited);
-            }
-        }
+    @Override
+    public String name() {
+        return "Min Cut";
     }
+
 }

@@ -110,4 +110,15 @@ public abstract class FlowNetwork {
             this.flows = flows;
         }
     }
+
+    protected void dfsOnResidualGraph(int node, int[][] residualCapacity, boolean[] visited) {
+        visited[node] = true;
+        for (int i = 0; i < residualCapacity.length; i++) {
+            if (!visited[i] && residualCapacity[node][i] > 0) {
+                dfsOnResidualGraph(i, residualCapacity, visited);
+            }
+        }
+    }
+    public abstract void run(String path);
+    public abstract String name();
 }
